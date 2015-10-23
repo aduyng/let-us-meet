@@ -1,0 +1,17 @@
+<div class="badge-user {{clazz}}">
+    <div class="pull-left avatar">{{{avatar50 user.avatarUrl}}}</div>
+    <div class="info">
+        <strong class="text-nowrap name">{{user.name}}</strong>
+        {{#unless emailAsText}}
+            <a href="mailto: {{user.email}}"
+               class="text-muted {{#if hideEmailInSmall}}hidden-xs hidden-sm{{/if}} email">{{user.email}}</a>
+        {{else}}
+            <span class="text-muted {{#if hideEmailInSmall}}hidden-xs hidden-sm{{/if}} email">{{user.email}}</span>
+        {{/unless}}
+        {{#if showRole}}
+            {{#if user.isAdmin}}
+                <span class="role">{{translate 'Admin'}}</span>
+            {{/if}}
+        {{/if}}
+    </div>
+</div>

@@ -1,0 +1,15 @@
+{
+  "name": "group-travel-planner",
+  "root": "firebase",
+  "clean_urls": true,
+  "error_page": "error.html",
+  "cache_control": {
+    "/**": 31536000
+  },
+  "headers": {
+    "/**": {
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Origin": "*"
+    }
+  }
+}
