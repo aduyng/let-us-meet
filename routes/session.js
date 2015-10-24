@@ -4,8 +4,9 @@ module.exports = function(app) {
   var acl = require('../acl');
 
   app.get('/session', controller.get);
-  app.get('/session/login', controller.login);
-  app.get('/session/login/callback', controller.loginCallback);
+  // app.put('/session', controller.put);
+  // app.get('/session/login', controller.login);
 
-  app.get('/session/logout', [acl.requireAuthenticated, controller.logout]);
+
+  // app.get('/session/logout', [acl.requireAuthenticated, controller.logout]);
 };

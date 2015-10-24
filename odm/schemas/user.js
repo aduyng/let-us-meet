@@ -18,61 +18,21 @@ var Schema = Super.extend({
     },
     email: {
         type: String,
+        trim: true
+    },
+    userId: {
+        type: String,
         trim: true,
         required: true
     },
-    uid: {
-        type: String,
-        trim: true,
-        required: true
-    },
-    auth: {
-        type: odm.Schema.Types.Mixed,
-        select: false
-    },
-    avatarUrl: {
-        type: String,
-        trim: true
-    },
-    profileUrl: {
-        type: String,
-        trim: true
-    },
-    path: {
-        type: String,
-        trim: true
-    },
-    isAdmin: {
-        type: Boolean,
-        default: false
-    },
-    domainId: {
-        type: odm.Schema.Types.ObjectId,
-        required: true
-    },
-    isActive: {
-        type: Boolean,
-        default: false
-    },
-    lastLoggedInAt: {
-        type: Number
-    },
-    customerId: {
+    accessToken: {
         type: String
     },
-    organizations: {
-        type: [odm.Schema.Types.Mixed]
+    signedRequest: {
+        type: String
     },
-    groupIds: {
-        type: [odm.Schema.Types.ObjectId]
-    },
-    isDeleted: {
-        type: Boolean,
-        default: true
-    },
-    isActiveInDomain: {
-        type: Boolean,
-        default: false
+    expiresIn: {
+        type: Number
     }
 });
 
