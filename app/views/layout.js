@@ -73,16 +73,7 @@ define(function(require) {
       minHeight: that.getMaxContainerHeight() + 'px'
     });
 
-    if (isLoggedIn) {
-      that.nav = new Nav({
-        el: that.controls.nav,
-        toast: that.toast
-      });
-      that.nav.render();
-      $('html').removeClass('no-nav');
-    }else{
-      $('html').addClass('no-nav');
-    }
+    
     var missingFeatures = that.isBrowserCompatible();
     if (!_.isEmpty(missingFeatures)) {
       L.warn('Missing features: ' + missingFeatures.join(', '));

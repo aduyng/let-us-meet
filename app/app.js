@@ -100,7 +100,7 @@ define(function (require) {
             this.initRouter()
         ]).spread(function () {
             if (window.config.firebase.isEnabled && that.session.isLoggedIn()) {
-                that.firebase = new Firebase(window.config.firebase.url + 'users/' + that.session.user.id);
+                that.firebase = new Firebase(window.config.firebase.url + 'users/' + that.session.getUser().get('userId'));
             }
             return that.layout.render();
         }).then(function () {

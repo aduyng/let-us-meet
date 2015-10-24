@@ -18,8 +18,7 @@ define(function (require) {
         var params = {
             id: this.id,
             config: window.app.config.toJSON(),
-            isLoggedIn: window.app.session.get('user') !== undefined,
-            redirectUrl: this.session.get('redirectUrl') || '#document/inbox'
+            isLoggedIn: window.app.session.get('user') !== undefined
         };
 
         this.$el.html(TEMPLATE(params));

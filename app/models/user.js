@@ -7,6 +7,9 @@ define(function (require) {
         name: 'user'
     });
 
+    Model.prototype.getAvatarUrl = function(){
+        return 'http://graph.facebook.com/' + this.get('userId') + '/picture?type=square';
+    }
 
     return Model;
 });

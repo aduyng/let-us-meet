@@ -8,14 +8,14 @@ module.exports = {
     isTestEnv: process.env.NODE_ENV === 'test',
     sharedSecret: process.env.GTP_SHARED_SECRET,
     app: {
-        name: 'group-travel-planner',
-        fullName: 'Rethink Workflow',
+        name: 'let-us-meet',
+        fullName: 'Let\'s Meet',
         version: process.env.GTP_VERSION,
         refreshInterval: 5 * 60,
         frontend: process.env.GTP_FRONTEND_URL,
         backend: process.env.GTP_BACKEND_URL,
         systemMessage: process.env.GTP_SYSTEM_MESSAGE,
-        domain: 'group-travel-planner.com'
+        domain: 'let-us-meet.com'
     },
     mongo: {
         url: process.env.MONGOLAB_URI,

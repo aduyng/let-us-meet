@@ -16,8 +16,9 @@ define(function (require) {
 
 
     Model.prototype.isLoggedIn = function () {
-        return this.get('isLoggedIn') && !this.getUser().isGuest();
+        return this.get('isLoggedIn');
     };
+
 
     return Model;
 });
