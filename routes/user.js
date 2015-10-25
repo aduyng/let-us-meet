@@ -1,10 +1,11 @@
 'use strict';
 module.exports = function(app) {
-  var controller = app.controllers.session;
+  var controller = app.controllers.user;
   var acl = require('../acl');
 
-  app.get('/session', controller.get);
-  // app.put('/session', controller.put);
+  // app.get('/session', controller.get);
+  app.post('/user', controller.post);
+  app.put('/user/:id', controller.put);
   // app.get('/session/login', controller.login);
 
 
