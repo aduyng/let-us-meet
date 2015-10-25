@@ -25,19 +25,19 @@ Mailer.prototype.send = function(options) {
     backend: config.app.backend
   });
 
-  if (process.env.GTP_EMAIL_DEFAULT_RECIPIENT) {
-    L.warnAsync('recipient %s has been replaced by %s=%s', options.to, 'process.env.GTP_EMAIL_DEFAULT_RECIPIENT', process.env.GTP_EMAIL_DEFAULT_RECIPIENT);
-    options.to = process.env.GTP_EMAIL_DEFAULT_RECIPIENT;
+  if (process.env.LM_EMAIL_DEFAULT_RECIPIENT) {
+    L.warnAsync('recipient %s has been replaced by %s=%s', options.to, 'process.env.LM_EMAIL_DEFAULT_RECIPIENT', process.env.LM_EMAIL_DEFAULT_RECIPIENT);
+    options.to = process.env.LM_EMAIL_DEFAULT_RECIPIENT;
     options.cc = '';
     options.bcc = '';
   }
 
-  if (S.toBoolean(process.env.GTP_EMAIL_DELIVERY_ACTIVE)) {
+  if (S.toBoolean(process.env.LM_EMAIL_DELIVERY_ACTIVE)) {
     L.infoAsync('with subject "%s" has been sent to %s', options.subject, options.to);
     return that.transporter.sendMailAsync(options);
   }
 
-  L.warnAsync('email to %s has been turned off because %s=%s', options.to, 'process.env.GTP_EMAIL_DELIVERY_ACTIVE', process.env.GTP_EMAIL_DELIVERY_ACTIVE);
+  L.warnAsync('email to %s has been turned off because %s=%s', options.to, 'process.env.LM_EMAIL_DELIVERY_ACTIVE', process.env.LM_EMAIL_DELIVERY_ACTIVE);
 
   return B.resolve(true);
 };

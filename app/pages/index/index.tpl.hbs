@@ -1,26 +1,2 @@
-{{#unless isLoggedIn}}
-    <div class="row">
-        <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
-            <div class="panel panel-default login">
-                <div class="panel-heading">
-                    <img class="img-responsive icon" src="{{baseUrl '/images/logo-500x122.png'}}" width="500" height="122"/>
-
-                    <div class="text-center">
-                        <small>v{{config.version}}</small>
-                    </div>
-                </div>
-                <div class="panel-body text-center">
-                    <h4>{{translate 'Please sign in'}}</h4>
-                    <a href="/session/login" id="{{id}}-sign-in" class="btn btn-primary btn-block btn-lg"><i
-                            class="fa fa-google"></i> {{translate 'Google'}}</a>
-                </div>
-            </div>
-        </div>
-    </div>
-{{else}}
-    {{#if isActive}}
-
-
-    {{else}}
-    {{/if}}
-{{/unless}}
+<div id="{{id}}-sidebar" class="sidebar"></div>
+<div id="{{id}}-map" class="map"></div>

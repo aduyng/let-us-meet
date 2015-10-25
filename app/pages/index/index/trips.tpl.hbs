@@ -1,0 +1,6 @@
+<div class="list-group">
+    {{#each trips}}
+        <button type="button" class="list-group-item {{../id}}-trip" data-id="{{id}}">{{name}}</button>
+    {{/each}}
+</div>
+<button class="btn btn-block btn-success" id="{{id}}-new">{{translate 'New Trip'}}</button>

@@ -2,7 +2,6 @@
 define(function(require) {
   var Super = require('views/base'),
     _ = require('underscore'),
-    Nav = require('views/nav'),
     Boostrap = require('bootstrap'),
     Toastr = require('toastr'),
     B = require('bluebird'),
@@ -73,16 +72,7 @@ define(function(require) {
       minHeight: that.getMaxContainerHeight() + 'px'
     });
 
-    if (isLoggedIn) {
-      that.nav = new Nav({
-        el: that.controls.nav,
-        toast: that.toast
-      });
-      that.nav.render();
-      $('html').removeClass('no-nav');
-    }else{
-      $('html').addClass('no-nav');
-    }
+
     var missingFeatures = that.isBrowserCompatible();
     if (!_.isEmpty(missingFeatures)) {
       L.warn('Missing features: ' + missingFeatures.join(', '));
@@ -90,7 +80,7 @@ define(function(require) {
       that.showMessage(message, {
         classes: 'alert-danger'
       });
-    }else if (!_.isEmpty(window.config.systemMessage)) {
+    } else if (!_.isEmpty(window.config.systemMessage)) {
       that.showMessage(window.config.systemMessage, {
         classes: 'alert-danger'
       });
@@ -126,13 +116,6 @@ define(function(require) {
 
   View.prototype.onPageLoaded = function() {
     this.adjustPageHeight();
-    this.generateApproximatePrintTime();
-  };
-
-  View.prototype.generateApproximatePrintTime = function() {
-    this.controls.printTime.text(window.app.translator.get('Printed on {{timestamp}}', {
-      timestamp: moment().format('dddd, MMMM Do YYYY, h:mm:ss a')
-    }));
   };
 
   View.prototype.adjustPageHeight = function() {
@@ -144,9 +127,6 @@ define(function(require) {
     }
   };
   View.prototype.getMaxContainerHeight = function() {
-    if (this.controls.nav) {
-      return $(window).height() - this.controls.nav.outerHeight() - 70;
-    }
     return $(window).height() - 70;
   };
 

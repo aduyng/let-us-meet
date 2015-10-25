@@ -6,16 +6,16 @@ var path = require('path'),
 module.exports = {
     rootPath: rootPath,
     isTestEnv: process.env.NODE_ENV === 'test',
-    sharedSecret: process.env.GTP_SHARED_SECRET,
+    sharedSecret: process.env.LM_SHARED_SECRET,
     app: {
-        name: 'group-travel-planner',
-        fullName: 'Rethink Workflow',
-        version: process.env.GTP_VERSION,
+        name: 'let-us-meet',
+        fullName: 'Let\'s Meet',
+        version: process.env.LM_VERSION,
         refreshInterval: 5 * 60,
-        frontend: process.env.GTP_FRONTEND_URL,
-        backend: process.env.GTP_BACKEND_URL,
-        systemMessage: process.env.GTP_SYSTEM_MESSAGE,
-        domain: 'group-travel-planner.com'
+        frontend: process.env.LM_FRONTEND_URL,
+        backend: process.env.LM_BACKEND_URL,
+        systemMessage: process.env.LM_SYSTEM_MESSAGE,
+        domain: 'let-us-meet.com'
     },
     mongo: {
         url: process.env.MONGOLAB_URI,
@@ -25,11 +25,11 @@ module.exports = {
     },
     bonsai: {
         url: process.env.BONSAI_URL,
-        interval: process.env.GTP_DOCUMENT_INDEX_INTERVAL_SECONDS || 300,
+        interval: process.env.LM_DOCUMENT_INDEX_INTERVAL_SECONDS || 300,
         log: process.env.BONSAI_LOG_LEVEL || 'error'
     },
     support: {
-        email: process.env.GTP_SUPPORT_EMAIL
+        email: process.env.LM_SUPPORT_EMAIL
     },
     gtm: {
         isEnabled: S.toBoolean(process.env.GTM_ENABLED),
@@ -63,7 +63,7 @@ module.exports = {
         url: process.env.REDISTOGO_URL
     },
     session: {
-        secret: process.env.GTP_SESSION_SECRET
+        secret: process.env.LM_SESSION_SECRET
     },
     emailTemplate: {
         viewEngine: {

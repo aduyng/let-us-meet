@@ -3,30 +3,15 @@ define(function(require) {
   var Backbone = require('backbone'),
     _ = require('underscore'),
     L = require('logger'),
-    Super = Backbone.Model,
-    ObjectId = require('ObjectId');
+    Super = Backbone.Model;
+    
 
   var Model = Super.extend({
     url: function() {
-      return '/' + this.name + (this.attributes && (this.attributes.id || this.attributes._id) ? '/' + (this.attributes.id || this.attributes._id) : '');
-    },
-    parse: function(response, options) {
-      if (_.isArray(response)) {
-        return Super.prototype.parse.apply(this, [response[0], options]);
-      }
-      return Super.prototype.parse.apply(this, arguments);
-    },
-    idAttribute: 'id'
+      return '/' + this.name + (this.attributes && this.attributes.id ? ('/' + this.attributes.id) : '');
+    }
   });
 
-  Model.prototype.initialize = function() {
-    if (!this.attributes[this.idAttribute]) {
-      this.attributes[this.idAttribute] = new ObjectId().toString();
-    }
-    if (!this.id) {
-      this.id = this.attributes[this.idAttribute];
-    }
-  };
 
   Model.prototype.getAndCache = function(key, ClassName) {
     if (!this[key]) {
