@@ -1,0 +1,27 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{translate 'Participants'}}</h3>
+    </div>
+    {{#if attendees}}
+        <ul class="list-group">
+            {{#each attendees}}
+                <li class="list-group-item">{{{avatar50 id}}} {{name}}</li>
+            {{/each}}
+        </ul>
+    {{else}}
+        <div class="panel-body">
+            No one is invited.
+        </div>
+    {{/if}}
+
+    <div class="panel-footer">
+        {{#if isCreator}}
+            <button class="btn btn-success btn-block" id="{{id}}-invite"><i class="fa fa-user-plus"></i> {{translate 'Invite friend'}}</button>
+        {{else}}
+            {{#if isJoined}}
+            {{else}}
+                <button class="btn btn-primary btn-block" id="{{id}}-join"><i class="fa fa-check-circle"></i> {{translate 'I\'m In'}}</button>
+            {{/if}}
+        {{/if}}
+    </div>
+</div>

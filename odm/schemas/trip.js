@@ -7,6 +7,7 @@ var env = process.env.NODE_ENV || 'development',
   moment = require('moment'),
   _ = require('underscore'),
   extend = require('mongoose-schema-extend'),
+  User = require('../models/user'),
   Super = require('./base');
 
 
@@ -21,10 +22,36 @@ var Schema = Super.extend({
     trim: true,
     required: true
   },
-  attendeeIds: {
-    type: [String]
+  attendees: {
+    type: odm.Schema.Types.Mixed
+  },
+  dateOfTravel: {
+    type: Number,
+    required: true,
+    default: moment().valueOf()
+  },
+  destination: {
+    type: odm.Schema.Types.Mixed
   }
 });
 
+Schema.methods.export = function(viewer) {
+  var me = this;
+  var data = me.toJSON();
+  var tripAttendees = data.attendees || {};
+  var attendeeIds = [].concat(_.keys(tripAttendees));
+  return User.findAsync({
+    userId: {$in: attendeeIds}
+  })
+    .then(function(attendees) {
+      _.each(attendees, function(attendee) {
+        _.extend(tripAttendees[attendee.userId], _.pick(attendee, 'name', 'coords'))
+      });
+
+      return _.extend(me.toJSON(), {
+        attendees: tripAttendees
+      });
+    });
+};
 
 module.exports = Schema;

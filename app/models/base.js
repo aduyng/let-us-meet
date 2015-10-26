@@ -44,12 +44,6 @@ define(function(require) {
     return this;
   };
 
-  Model.prototype.toJSON = function() {
-    var data = Super.prototype.toJSON.apply(this, arguments);
-    data.id = data._id;
-    return data;
-  };
-
   Model.diff = function(from, to) {
     var deepDiffMapper = function() {
       return {

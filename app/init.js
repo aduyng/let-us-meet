@@ -6,7 +6,7 @@ requirejs.config({
   waitSeconds: 30,
   paths: {
     filepicker: '//api.filepicker.io/v2/filepicker',
-    backbone: ['//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min', 'vendors/backbone/backbone'],
+    'backbone-core': ['//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min', 'vendors/backbone/backbone'],
     bootstrap: ['//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min', 'vendors/bootstrap/dist/js/bootstrap.min'],
     colorpicker: ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.0.0/js/bootstrap-colorpicker', 'vendors/bootstrap-colorpicker/dist/js/bootstrap-colorpicker'],
     text: 'vendors/requirejs-text/text',
@@ -48,7 +48,8 @@ requirejs.config({
     firebase: '//cdn.firebase.com/js/client/2.2.9/firebase',
     geolocator: 'vendors/geolocator/geolocator',
     facebook: '//connect.facebook.net/en_US/sdk',
-    geocoder: 'vendors/geocoder/geocoder.min'
+    geocoder: 'vendors/geocoder/geocoder.min',
+    backbone: '//cdn.firebase.com/libs/backbonefire/0.5.1/backbonefire'
   },
   hbs: {
     helpers: true,
@@ -109,8 +110,12 @@ requirejs.config({
     jqueryui: {
       deps: ['jquery', 'jqueryui-core']
     },
-    backbone: {
+    'backbone-core': {
       deps: ['underscore', 'jquery'],
+      exports: 'Backbone'
+    },
+    backbone: {
+      deps: ['backbone-core'],
       exports: 'Backbone'
     },
     toastr: {

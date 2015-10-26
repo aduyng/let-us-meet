@@ -16,13 +16,11 @@ define(function(require) {
     this.app = options.app;
     this.layout = options.app.layout;
     this.router = options.app.router;
-    this.session = options.app.session;
     this.socket = options.app.socket;
     this.config = window.app.config;
     this.params = options.params;
-    this.user = this.session.getUser();
+    this.user = window.app.user;
     this.toast = options.toast;
-    this.firebase = window.app.firebase;
 
     this.bindedOnWindowBeforeUnload = this.onWindowBeforeUnload.bind(this);
     $(window).on('beforeunload', this.bindedOnWindowBeforeUnload);

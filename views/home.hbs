@@ -32,6 +32,10 @@
             facebook: {
                 appId: '{{config.facebook.appId}}',
                 apiVersion: '{{config.facebook.apiVersion}}'
+            },
+            sabre: {
+                authToken: '{{config.sabre.authToken}}',
+                baseUrl: '{{config.sabre.baseUrl}}'
             }
         };
     </script>
@@ -50,7 +54,7 @@
 
     <link media="screen" rel="stylesheet" href="{{path}}/style.css"/>
     <!--[if IE]>
-    <link media="screen" rel="stylesheet" href="{{path}}/style.ie.css"/>
+    <link media="screen" rel="stylesheet" href="{{path}}             "/>
     <![endif]-->
 
     <!-- start icon-->
@@ -79,7 +83,6 @@
     <!--end icon-->
 
 
-
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -98,7 +101,8 @@
 {{#if isDevelopment}}
     <script data-main="{{path}}/init.js" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.js"></script>
 {{else}}
-    <script data-main="{{path}}/init.js" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
+    <script data-main="{{path}}/init.js"
+            src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
 {{/if}}
 </body>
 </html>

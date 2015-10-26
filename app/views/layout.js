@@ -24,7 +24,7 @@ define(function(require) {
     this.app = options.app;
     this.toast = Toastr;
     this.toast.options = {
-      'closeButton': false,
+      'closeButton': true,
       'debug': false,
       'positionClass': 'toast-bottom-right',
       'onclick': null,
@@ -54,15 +54,11 @@ define(function(require) {
 
   View.prototype.render = function() {
     var that = this;
-    var isLoggedIn = window.app.session.isLoggedIn();
-    if (isLoggedIn) {
-      $('html').addClass('authenticated');
-    }
+
     that.$el.html(Template({
       id: that.id,
       name: window.config.fullName,
-      version: window.config.version,
-      isLoggedIn: isLoggedIn
+      version: window.config.version
     }));
 
     that.mapControls();

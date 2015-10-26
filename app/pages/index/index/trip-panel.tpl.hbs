@@ -1,0 +1,25 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        {{#if isCreator}}
+            <div class="btn-group pull-right">
+                <button class="btn btn-default btn-xs" id="{{id}}-edit"><i class="fa fa-edit"></i></button>
+                <button class="btn btn-default btn-xs" id="{{id}}-remove"><i class="fa fa-trash-o text-danger"></i>
+                </button>
+            </div>
+        {{/if}}
+        <h3 class="panel-title">{{trip.name}}</h3>
+    </div>
+    <div class="panel-body">
+        <dl>
+            <dt>Date of Travel</dt>
+            <dt>{{formatDate trip.dateOfTravel}}</dt>
+        </dl>
+
+        <!--dl>
+            <dt>Number of people</dt>
+            <dt>You + {{trip.attendeeIds.length}} others</dt>
+        </dl-->
+    </div>
+</div>
+
+

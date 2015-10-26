@@ -4,14 +4,23 @@ define(function(require) {
     Dialog = require('views/controls/dialog'),
     Trip = require('models/trip'),
     B = require('bluebird'),
-    TripView = require('./trip'),
-    TEMPLATE = require('hbs!./trips.tpl');
+    TripForm = require('./trip-form'),
+    Trips = require('collections/trip'),
+    moment = require('moment'),
+    TEMPLATE = require('hbs!./trip-list-panel.tpl');
 
   var View = Super.extend({});
 
   View.prototype.initialize = function() {
     Super.prototype.initialize.apply(this, arguments);
-    this.collection.on('add remove', this.draw.bind(this));
+    this.collection = window.app.trips;
+    this.boundDraw = this.draw.bind(this);
+    this.collection.on('all', this.boundDraw);
+  };
+
+  View.prototype.remove = function() {
+    this.collection.off('all', this.boundDraw);
+    Super.prototype.remove.apply(this, arguments);
   };
 
   View.prototype.draw = function() {
@@ -27,17 +36,34 @@ define(function(require) {
     events['click ' + this.toClass('trip')] = 'onTripClick';
     this.delegateEvents(events);
   };
+
   View.prototype.onTripClick = function(event) {
     var e = $(event.currentTarget);
     var trip = this.collection.get(e.data('id'));
-    this.trigger('trip-click', _.extend(event, {
+    this.trigger('trip-click', {
+      event: event,
       trip: trip
-    }));
+    });
   };
+
   View.prototype.onNewTripClick = function() {
     var me = this;
-    var trip = new Trip();
-    var view = new TripView({
+    var user = window.app.user;
+    var participants = {};
+    participants[user.id] = {
+      id: user.get('id'),
+      name: user.get('name'),
+      coords: user.get('coords')
+    };
+    var trip = new Trip({
+      id: Trip.getRandomId(),
+      userId: user.id,
+      name: window.app.translator.get('New Trip'),
+      dateOfTravel: moment().add(4, 'weeks').valueOf(),
+      participants: participants
+    });
+
+    var view = new TripForm({
       model: trip
     });
 
@@ -60,9 +86,10 @@ define(function(require) {
     });
 
     dlg.on('create', function() {
-      return B.resolve(trip.save(view.toJSON()))
+      trip.set(view.toJSON());
+
+      return B.resolve(me.collection.create(trip.toJSON()))
         .then(function() {
-          me.collection.add(trip);
           dlg.close();
         })
         .catch(function() {

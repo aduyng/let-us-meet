@@ -1,7 +1,7 @@
 'use strict';
 define(function(require) {
 
-  var Super = require('./base'),
+  var Super = require('./realtime'),
     Model = require('../models/user');
 
   var Collection = Super.extend({

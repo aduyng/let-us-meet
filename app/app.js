@@ -76,36 +76,34 @@ define(function(require) {
     //});
   };
 
-
-  App.prototype.initSession = function() {
-    this.session = new Session();
-    return this.session.fetch();
+  App.prototype.initFirebase = function() {
+    return new B(function(resolve) {
+      var connectedRef = new Firebase(window.config.firebase.url + '.info/connected');
+      connectedRef.on('value', function(snap) {
+        if (snap.val() === true) {
+          resolve();
+        }
+      });
+    });
   };
 
   App.prototype.run = function() {
     var that = this;
 
-    //var requestForLang = new B(function (resolve, reject) {
-    //    return $.getJSON(window.config.baseUrl + '/' + window.config.version + '/templates/i18n/en-us.json', resolve, reject);
-    //});
-
-    var start = moment().valueOf();
-
     return B.all([
       this.initTranslator(),
       this.initSocket(),
       this.initConfig(),
-      this.initSession(),
+      this.initFirebase(),
       this.initLayout(),
       this.initRouter()
-    ]).spread(function() {
-      if (window.config.firebase.isEnabled && that.session.isLoggedIn()) {
-        that.firebase = new Firebase(window.config.firebase.url + 'users/' + that.session.getUser().get('userId'));
-      }
-      return that.layout.render();
-    }).then(function() {
-      return that.router.start();
-    });
+    ])
+      .then(function() {
+        return that.layout.render();
+      })
+      .then(function() {
+        return that.router.start();
+      });
 
 
   };

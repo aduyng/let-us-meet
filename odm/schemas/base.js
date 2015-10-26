@@ -36,6 +36,7 @@ Schema.set('toJSON', {
   transform: function(doc, ret, options) {
     delete ret._type;
     delete ret.__v;
+    delete ret._id;
   }
 });
 
