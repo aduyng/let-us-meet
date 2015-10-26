@@ -1,31 +1,59 @@
 'use strict';
-define(function(require) {
+define(function (require) {
   var Super = require('views/base'),
     B = require('bluebird'),
-    Participants = require('collections/participant'),
+    numeral = require('numeral'),
+    Sabre = require('models/sabre'),
     TEMPLATE = require('hbs!./attendees-panel.tpl');
 
   var View = Super.extend({});
 
-  View.prototype.initialize = function() {
+  View.prototype.initialize = function () {
     Super.prototype.initialize.apply(this, arguments);
 
-    this.boundDraw = this.draw.bind(this);
+    this.boundRender = this.render.bind(this);
 
     this.model = window.app.trip;
-    this.model.on('all', this.boundDraw);
+    this.model.on('destination-changed', this.boundRender);
 
     this.collection = window.app.participants;
-    this.collection.on('all', this.boundDraw);
+    this.collection.on('add remove', this.boundRender);
   };
 
-  View.prototype.remove = function() {
-    this.collection.off('all', this.boundDraw);
+  View.prototype.remove = function () {
+    this.collection.off('all', this.boundRender);
     Super.prototype.remove.apply(this, arguments);
   };
 
-  View.prototype.draw = function() {
+  View.prototype.render = function () {
     var me = this;
+    return Super.prototype.render.apply(this, arguments)
+      .then(function () {
+        return me.calculateLowestFares();
+      });
+  };
+
+  View.prototype.calculateLowestFares = function () {
+    var me = this;
+    var sabre = Sabre.getInstance();
+
+    return B.all(me.collection.map(function (participant) {
+      var from = participant.get('from') || participant.get('coords');
+      var to = participant.get('to') || me.model.get('destination');
+      if (from && to) {
+        return B.resolve(sabre.findLowestFare(from, to))
+          .then(function (fare) {
+            me.find(me.toId('cheapest-price-' + participant.id)).text(numeral(fare.price).format('$0,0')).removeClass('hidden');
+          });
+      }
+    }));
+  };
+
+  View.prototype.draw = function () {
+    var me = this;
+
+
+
     me.$el.html(TEMPLATE({
       id: me.getId(),
       trip: me.model.toJSON(),
@@ -35,21 +63,21 @@ define(function(require) {
     }));
   };
 
-  View.prototype.initEvents = function() {
+  View.prototype.initEvents = function () {
     var events = {};
     events['click ' + this.toId('invite')] = 'onInviteClick';
     events['click ' + this.toId('join')] = 'onJoinClick';
     this.delegateEvents(events);
   };
 
-  View.prototype.onInviteClick = function(e) {
+  View.prototype.onInviteClick = function (e) {
     FB.ui({
       method: 'send',
       link: [window.config.backendUrl, 'trip', this.model.id, 'invite'].join('/')
     });
   };
 
-  View.prototype.onJoinClick = function() {
+  View.prototype.onJoinClick = function () {
     this.collection.create({
       id: window.app.user.id,
       name: window.app.user.get('name'),

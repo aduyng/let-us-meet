@@ -5,7 +5,6 @@ define(function(require) {
     Backbone = require('backbone'),
     S = require('underscore.string'),
     L = require('logger'),
-    amplify = require('amplify'),
     NProgress = require('nprogress'),
     Super = Backbone.Router,
     Router = Super.extend({

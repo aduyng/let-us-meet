@@ -8,7 +8,6 @@ define(function(require) {
     Router = require('./router'),
     Session = require('models/session'),
     Translator = require('models/translator'),
-    Config = require('./config'),
     Toastr = require('toastr'),
     Handlebars = require('hbs/handlebars'),
     L = require('./logger'),
@@ -16,16 +15,6 @@ define(function(require) {
     moment = require('moment'),
     Socket = require('./socket');
   var App = Super.extend({});
-
-  App.prototype.initialize = function(options) {
-    Super.prototype.initialize.call(this, options);
-  };
-
-
-  App.prototype.initConfig = function() {
-    this.config = new Config(window.config);
-    return B.resolve();
-  };
 
 
   App.prototype.initSocket = function() {
@@ -93,7 +82,6 @@ define(function(require) {
     return B.all([
       this.initTranslator(),
       this.initSocket(),
-      this.initConfig(),
       this.initFirebase(),
       this.initLayout(),
       this.initRouter()
@@ -104,8 +92,6 @@ define(function(require) {
       .then(function() {
         return that.router.start();
       });
-
-
   };
 
 
@@ -142,14 +128,6 @@ define(function(require) {
     }
   });
 
-  Object.defineProperty(App.prototype, 'config', {
-    get: function() {
-      return this.get('config');
-    },
-    set: function(val) {
-      this.set('config', val);
-    }
-  });
   Object.defineProperty(App.prototype, 'translator', {
     get: function() {
       return this.get('translator');

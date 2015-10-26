@@ -1,35 +1,18 @@
 'use strict';
-
 var path = require('path');
 var url = require('url');
+var _ = require('lodash');
+var config = require('./app/data/config.json');
 
-module.exports = function(grunt) {
-  var env = grunt.option('env') || 'development',
-    _ = require('underscore'),
-    backendOptions = require('./backend.json'),
-    frontendPath = grunt.option('frontend-path') || ('./firebase/' + backendOptions.LM_VERSION),
-    backendPath = grunt.option('backend-path') || './heroku';
-
-
-  console.log('env=' + env + '; tasks=' + JSON.stringify(grunt.cli.tasks));
-
-  if (!backendOptions.PORT) {
-    backendOptions.PORT = url.parse(backendOptions.LM_BACKEND_URL).port || 80;
-  }
-
-
+module.exports = function (grunt) {
+  var frontendPath = './dist';
+  
   var requireJsOptions = {};
   var concurrentOptions = {
     frontend: {
       tasks: ['http-server:frontend', 'watch:frontend'],
       options: {
         limit: 2,
-        logConcurrentOutput: true
-      }
-    },
-    backend: {
-      tasks: ['shell:start-backend', 'watch:backend'],
-      options: {
         logConcurrentOutput: true
       }
     }
@@ -45,29 +28,9 @@ module.exports = function(grunt) {
       tasks: [
         'less:frontend'
       ]
-    },
-    backend: {
-      files: [
-        'controllers/**/*.js',
-        'odm/**/*.js',
-        'routes/**/*.js',
-        'views/**/*.js',
-        'error.js',
-        'config.js',
-        'cache.js',
-        'gclient.js',
-        'logger.js',
-        'mailer.js',
-        'server.js',
-        'utils.js',
-        'Procfile'
-      ],
-      tasks: [
-        'shell:stop-backend',
-        'shell:start-backend'
-      ]
     }
   };
+
   var defaultRequireJsModuleOptions = {
     mainConfigFile: 'app/init.js',
     packages: [],
@@ -146,7 +109,7 @@ module.exports = function(grunt) {
   };
 
 
-  _.forEach(['init'], function(moduleName) {
+  _.forEach(['init'], function (moduleName) {
     requireJsOptions[moduleName] = {
       options: _.extend({}, defaultRequireJsModuleOptions, {
         name: moduleName,
@@ -176,11 +139,6 @@ module.exports = function(grunt) {
       options: {
         force: true
       },
-      heroku: {
-        src: [
-          backendPath
-        ]
-      },
       firebase: {
         src: [
           frontendPath
@@ -206,38 +164,6 @@ module.exports = function(grunt) {
             '*.png'
           ]
         }]
-      },
-      backend: {
-        files: [{
-          expand: true,
-          cwd: './',
-          dest: backendPath,
-          src: [
-            './controllers/*.js',
-            './directory/**/*.js',
-            './jobs/*.js',
-            './models/**/*.js',
-            './odm/**/*.js',
-            './routes/*.js',
-            './views/**/*.hbs',
-            './acl.js',
-            './agenda.js',
-            './cache.js',
-            './config.js',
-            './error.js',
-            './firebase.js',
-            './gclient.js',
-            './indexer.js',
-            './logger.js',
-            './mailer.js',
-            './newrelic.js',
-            './package.json',
-            './Procfile',
-            './server.js',
-            './utils.js',
-            './worker.js'
-          ]
-        }]
       }
     },
     less: {
@@ -246,15 +172,17 @@ module.exports = function(grunt) {
           ieCompat: false,
           compress: false,
           plugins: [
-            new (require('less-plugin-autoprefix'))({browsers: ['last 2 versions']}),
-            new (require('less-plugin-clean-css'))({
+            new(require('less-plugin-autoprefix'))({
+              browsers: ['last 2 versions']
+            }),
+            new(require('less-plugin-clean-css'))({
               advanced: false,
               keepBreaks: true,
               keepSpecialComments: '*'
             })
           ]
         },
-        files: (function() {
+        files: (function () {
           var files = {};
           files['app/style.css'] = 'app/style.less';
           files['app/style.ie.css'] = 'app/style.ie.less';
@@ -262,59 +190,17 @@ module.exports = function(grunt) {
         })()
       }
     },
-    shell: {
-      'start-frontend': {
-        command: './start-frontend.sh',
-        options: {
-          stdout: true,
-          async: true,
-          failOnError: true,
-          execOptions: {}
-        }
-      },
-      'start-backend': {
-        command: _.map(backendOptions, function(value, key) {
-          return key + '="' + value + '"';
-        }).concat('foreman start').join(' '),
-        options: {
-          stdout: true,
-          async: false,
-          failOnError: true,
-          execOptions: {}
-        }
-      },
-      'stop-backend': {
-        command: 'kill `pidof node` || true > /dev/null & kill `pidof foreman` & kill `pidof foreman-runner`',
-        options: {
-          stderr: false,
-          failOnError: false,
-          async: false,
-          execOptions: {}
-        }
-      }
-    },
     concurrent: concurrentOptions,
     'http-server': {
       frontend: {
         root: 'app',
-        port: url.parse(backendOptions.LM_FRONTEND_URL).port || process.env.PORT || 11000,
-        host: url.parse(backendOptions.LM_FRONTEND_URL).hostname || process.env.IP || '0.0.0.0',
+        port: process.env.PORT || 11000,
+        host: process.env.IP || '0.0.0.0',
         cache: -1,
         showDir: true,
         autoIndex: false,
-        runInBackground: false,
-        https: {
-          cert: 'ssl/server.crt',
-          key: 'ssl/server.key'
-        },
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
-        }
+        runInBackground: false
       }
-    },
-    env: {
-      test: _.extend({}, backendOptions, {NODE_ENV: 'test'})
     },
     uglify: {
       options: {
@@ -352,7 +238,7 @@ module.exports = function(grunt) {
         }
       },
       frontend: {
-        files: (function() {
+        files: (function () {
           var files = {};
 
           files[[frontendPath, 'init.js'].join('/')] = './tmp/init.js';
@@ -363,39 +249,17 @@ module.exports = function(grunt) {
   };
 
   grunt.initConfig(opts);
-  grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-shell-spawn');
   grunt.loadNpmTasks('grunt-http-server');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
 
-  grunt.registerTask('frontend', function() {
-    grunt.task.run([
-      'less:frontend',
-      'concurrent:frontend'
-    ]);
-  });
-
-  grunt.registerTask('backend', function() {
-    grunt.task.run([
-      'shell:stop-backend',
-      'shell:start-backend'
-    ]);
-  });
-
-  grunt.registerTask('stop', function() {
-    grunt.task.run([
-      'shell:stop-backend'
-    ]);
-  });
-
-  grunt.registerTask('build-frontend', function() {
+  grunt.registerTask('build', function () {
     grunt.task.run([
       'requirejs',
       'uglify:frontend',
@@ -404,9 +268,10 @@ module.exports = function(grunt) {
     ]);
   });
 
-  grunt.registerTask('build-backend', function() {
+  grunt.registerTask('default', function () {
     grunt.task.run([
-      'copy:backend'
+      'less:frontend',
+      'concurrent:frontend'
     ]);
   });
 };

@@ -5,7 +5,7 @@
     {{#if attendees}}
         <ul class="list-group">
             {{#each attendees}}
-                <li class="list-group-item">{{{avatar50 id}}} {{name}}</li>
+                <li class="list-group-item"><span class="label label-success cheapest-price" id="{{../id}}-cheapest-price-{{id}}" ></span>{{{avatar50 id}}} {{name}}</li>
             {{/each}}
         </ul>
     {{else}}

@@ -1,0 +1,20 @@
+{
+    "env": "development",
+    "name": "let-us-meet",
+    "fullName": "Let's Meet",
+    "version": "0.0.1",
+    "google": {
+        "apiKey": "AIzaSyC_yUSllOSDPpC_htde2YRUqagZaUs1IT8"
+    },
+    "firebase": {
+        "url": "https://let-us-meet.firebaseio.com/"
+    },
+    "facebook": {
+        "appId": "898862476817328",
+        "apiVersion": "v2.5"
+    },
+    "sabre": {
+        "authToken": "VmpFNmNIZzRZV1JyWW5WeGJqWnBibXAyTXpwRVJWWkRSVTVVUlZJNlJWaFU6Tm1STU9HeHpXVkk9",
+        "baseUrl": "https://api.test.sabre.com"
+    }
+}

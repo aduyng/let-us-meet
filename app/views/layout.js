@@ -7,8 +7,7 @@ define(function(require) {
     B = require('bluebird'),
     moment = require('moment'),
     L = require('logger'),
-    Template = require('hbs!views/layout.tpl'),
-    config = require('config');
+    Template = require('hbs!views/layout.tpl');
 
   var View = Super.extend({
     el: 'body'

@@ -2,7 +2,6 @@
 define(function(require) {
   var _ = require('underscore'),
     Backbone = require('backbone'),
-    amplify = require('amplify'),
     Super = Backbone.Model;
 
   var Model = Super.extend({
@@ -37,24 +36,7 @@ define(function(require) {
     if (window.app.session.isLoggedIn()) {
       return true;
     }
-    amplify.store.localStorage('redirectUrl', window.location.hash);
     window.app.router.navigate('#index/index/', {replace: true, trigger: true});
-    return false;
-  };
-
-  Model.prototype.requireActive = function() {
-    if (window.app.session.user && window.app.session.user.get('isActive')) {
-      return true;
-    }
-    this._redirectToErrorPageWithMessage(window.app.translator.get('Your account is not activate! Please contact your domain administrator to activate your account.'));
-    return false;
-  };
-
-  Model.prototype.requireAdministrator = function() {
-    if (window.app.session.user && window.app.session.user.isAdmin()) {
-      return true;
-    }
-    this._redirectToErrorPageWithMessage(window.app.translator.get('You must have administrator privilege to access this page!'));
     return false;
   };
 

@@ -6,8 +6,6 @@ define(function(require) {
     B = require('bluebird'),
     L = require('logger'),
     btnWait = require('btn-wait'),
-    transit = require('transit'),
-    FormValidation = require('formValidation'),
     Super = Backbone.View;
 
   function getGUID() {
