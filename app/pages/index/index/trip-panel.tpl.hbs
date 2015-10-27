@@ -1,25 +1,33 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         {{#if isCreator}}
-            <div class="btn-group pull-right">
-                <button class="btn btn-default btn-xs" id="{{id}}-edit"><i class="fa fa-edit"></i></button>
-                <button class="btn btn-default btn-xs" id="{{id}}-remove"><i class="fa fa-trash-o text-danger"></i>
-                </button>
-            </div>
+        <div class="btn-group pull-right">
+            <button class="btn btn-default btn-xs" id="{{id}}-edit"><i class="fa fa-edit"></i></button>
+            <button class="btn btn-default btn-xs" id="{{id}}-remove"><i class="fa fa-trash-o text-danger"></i>
+            </button>
+        </div>
         {{/if}}
-        <h3 class="panel-title">{{trip.name}}</h3>
+        <h3 class="panel-title">{{translate 'Trip Information'}}</h3>
     </div>
     <div class="panel-body">
-        <dl>
-            <dt>Date of Travel</dt>
-            <dt>{{formatDate trip.dateOfTravel}}</dt>
-        </dl>
+        <div class="form-group required">
+            <label class="control-label" for="{{id}}-name">{{translate 'Trip Name'}}</label>
+            <input type="text" class="form-control {{id}}-field" id="{{id}}-name" data-field="name" placeholder="{{translate 'Enter Trip Name'}}" value="{{trip.name}}">
+        </div>
 
-        <!--dl>
-            <dt>Number of people</dt>
-            <dt>You + {{trip.attendeeIds.length}} others</dt>
-        </dl-->
+        <div class="form-group required">
+            <label class="control-label" for="{{id}}-date-of-arrival">{{translate 'Date of Arrival'}}</label>
+            <input type="date" id="{{id}}-date-of-arrival" class="form-control {{id}}-field" data-field="dateOfArrival" placeholder="{{translate 'Select the date of arrival'}}" value="{{formatDateForDateInput trip.dateOfArrival}}" />
+        </div>
+
+        <div class="form-group required">
+            <label class="control-label" for="{{id}}-keywords">{{translate 'Keywords'}}</label>
+            <div class="input-group">
+                <input type="text" id="{{id}}-keywords" class="form-control {{id}}-field" data-field="keywords" placeholder="{{translate 'Search place by keywords'}}" value="{{trip.keywords}}" />
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+              </span>
+            </div>
+        </div>
     </div>
 </div>
-
-

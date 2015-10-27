@@ -1,26 +1,27 @@
 'use strict';
-define(function(require) {
+define(function (require) {
   var Super = require('views/base'),
     Dialog = require('views/controls/dialog'),
     B = require('bluebird'),
+    moment = require('moment'),
     TEMPLATE = require('hbs!./trip-panel.tpl');
 
   var View = Super.extend({});
 
-  View.prototype.initialize = function() {
+  View.prototype.initialize = function () {
     Super.prototype.initialize.apply(this, arguments);
     this.boundDraw = this.draw.bind(this);
     this.model = window.app.trip;
     this.model.on('all', this.boundDraw);
   };
 
-  View.prototype.remove = function() {
+  View.prototype.remove = function () {
     this.model.off('all', this.boundDraw);
     Super.prototype.remove.apply(this, arguments);
   };
 
 
-  View.prototype.draw = function() {
+  View.prototype.draw = function () {
     this.$el.html(TEMPLATE({
       id: this.getId(),
       trip: this.model.toJSON(),
@@ -28,14 +29,38 @@ define(function(require) {
     }));
   };
 
-  View.prototype.initEvents = function() {
+  View.prototype.initEvents = function () {
     var events = {};
     events['click ' + this.toId('remove')] = 'onRemoveClick';
     events['click ' + this.toId('edit')] = 'onEditClick';
+    events['change ' + this.toClass('field')] = 'onFieldChange';
     this.delegateEvents(events);
   };
 
-  View.prototype.onRemoveClick = function(event) {
+  View.prototype.onFieldChange = function (event) {
+    var e = $(event.currentTarget);
+    var value;
+    switch (e.data('field')) {
+    case 'dateOfArrival':
+      value = moment(e.val()).valueOf();
+      break;
+    case 'keywords':
+      value = e.val().trim();
+
+      this.searchForPlaces();
+      break;
+    default:
+      value = e.val().trim();
+      break;
+    }
+    this.model.set(e.data('field'), value);
+  };
+
+  View.prototype.searchForPlaces = function () {
+    google.maps.places
+  };
+
+  View.prototype.onRemoveClick = function (event) {
     var me = this;
     var btn = $(event.currentTarget);
     var dialog = new Dialog({
@@ -57,18 +82,18 @@ define(function(require) {
       }]
     });
 
-    dialog.on('yes', function(e) {
+    dialog.on('yes', function (e) {
       btn.btnWait(true);
       $(e.currentTarget).btnWait(true);
       B.resolve(window.app.trips.remove(me.model))
-        .then(function() {
+        .then(function () {
           me.trigger('trip-deleted', {
             trip: me.model
           });
           me.toast.success(window.app.translator.get('Trip has been deleted.'));
           dialog.close();
         })
-        .finally(function() {
+        .finally(function () {
           btn.btnWait(false);
           $(e.currentTarget).btnWait(false);
         });
@@ -76,7 +101,7 @@ define(function(require) {
 
   };
 
-  View.prototype.onEditClick = function(event) {
+  View.prototype.onEditClick = function (event) {
 
   };
 

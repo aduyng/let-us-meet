@@ -51,12 +51,12 @@ define(function (require) {
     this.children.map = new Map({
       el: this.controls.map
     });
-    this.children.map.on('airport-click', this.onMapAirportClick.bind(this));
+    this.children.map.on('destination-click', this.onMapDestinationClick.bind(this));
     return this.children.map.render();
   };
 
-  Page.prototype.onMapAirportClick = function (event) {
-    window.app.trip.set('destination', event.airport.toJSON());
+  Page.prototype.onMapDestinationClick = function (event) {
+    window.app.trip.set('destination', event.destination);
   };
 
   Page.prototype.renderSidebar = function () {
@@ -102,22 +102,29 @@ define(function (require) {
         });
       })
       .then(function () {
-        
         window.app.trip.on('sync', _.throttle(function () {
-          var fromCode = (window.app.trip.destination || {}).code;
-          var toCode = (window.app.trip.get('destination') || {}).code;
+          var fromCode = (window.app.trip.destination || {}).id;
+          var toCode = (window.app.trip.get('destination') || {}).id;
 
           if (!fromCode || fromCode !== toCode) {
             window.app.trip.trigger('destination-changed');
-            console.log('changed from ' + fromCode + ' to ' + toCode);
             window.app.trip.destination = window.app.trip.get('destination');
+          }
+
+          var fromKeywords = window.app.trip.keywords;
+          var toKeywords = window.app.trip.get('keywords');
+          
+          if (!fromKeywords || fromKeywords !== toKeywords) {
+            console.log(fromKeywords, toKeywords);
+            window.app.trip.trigger('keywords-changed');
+            window.app.trip.keywords = window.app.trip.get('keywords');
           }
         }, 300));
 
         window.app.participants = window.app.user.getRealtimeParticipants(tripId, userId);
         me.children.sidebar.displayTrip();
         me.children.map.displayTrip();
-      });
+      },100);
   };
 
   Page.prototype.onShowTrip = function (event) {

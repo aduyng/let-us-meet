@@ -1,9 +1,23 @@
-{{{avatar50 attendee.id}}} <strong>{{attendee.name}}</strong>
-<dl>
-    <dt>{{translate 'From'}}</dt>
-    <dd>{{attendee.from.name}}</dd>
-    <dt>{{translate 'To'}}</dt>
-    <dd>{{attendee.to.name}}</dd>
-    <dt>{{translate 'Price'}}</dt>
-    <dd><strong class="text-success">{{price}}</strong></dd>
-</dl>
+<address>
+  <strong>{{name}}</strong><br>
+  {{{address}}}<br>
+  {{#if phone}}
+  <abbr title="Phone">P:</abbr> {{phone}}<br>
+  {{/if}}
+  {{#if website}}
+  <a href="{{website}}" target="_blank">{{website}}</a>
+  {{/if}}
+</address> 
+
+{{#if photos}}
+<div class="galery">
+    {{#each photos}}
+    <img src="{{this}}" width="100" height="100" class="img-thumbnail" /> 
+    {{/each}}
+</div>
+<br />
+{{/if}}
+
+<div class="well well-sm clearfix">
+    <h4 class="text-success pull-right">{{translate 'Total'}} <strong>{{total}}</strong></h4>
+</div>

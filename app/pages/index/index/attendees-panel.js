@@ -4,6 +4,7 @@ define(function (require) {
     B = require('bluebird'),
     numeral = require('numeral'),
     Sabre = require('models/sabre'),
+    _ = require('underscore'),
     TEMPLATE = require('hbs!./attendees-panel.tpl');
 
   var View = Super.extend({});
@@ -51,13 +52,14 @@ define(function (require) {
 
   View.prototype.draw = function () {
     var me = this;
-
-
-
     me.$el.html(TEMPLATE({
       id: me.getId(),
       trip: me.model.toJSON(),
-      attendees: this.collection.toJSON(),
+      attendees: this.collection.map(function(participant){
+        return _.extend(participant.toJSON(), {
+          isMe: participant.id === window.app.user.id
+        });
+      }),
       isCreator: me.model.get('userId') === window.app.user.id,
       isJoined: this.collection.get(window.app.user.id)
     }));

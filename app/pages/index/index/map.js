@@ -1,16 +1,18 @@
 'use strict';
 define(function (require) {
   var Super = require('views/base'),
+    Backbone = require('backbone'),
     FB = require('fb'),
     B = require('bluebird'),
-    GoogleMap = require('async!https://maps.google.com/maps/api/js?sensor=false'),
     geocoder = require('geocoder'),
     Users = require('collections/user'),
     User = require('models/user'),
     INFO_WINDOW = require('hbs!./map.info-window.tpl'),
     Sabre = require('models/sabre'),
-    Airports = require('collections/airport'),
-    Airport = require('models/airport'),
+    _ = require('underscore'),
+    numeral = require('numeral'),
+    Sabre = require('models/sabre'),
+    MapStyles = require('json!data/map-styles.json'),
     TEMPLATE = require('hbs!./map.tpl');
 
   var View = Super.extend({});
@@ -18,7 +20,9 @@ define(function (require) {
 
   View.prototype.initialize = function () {
     Super.prototype.initialize.apply(this, arguments);
-    this.airports = Airports.getInstance();
+    // this.airports = Airports.getInstance();
+    this.points = new Backbone.Collection();
+    this.points.on('reset', this.drawMakers.bind(this));
   };
 
   View.prototype.render = function () {
@@ -50,157 +54,81 @@ define(function (require) {
         lng: coords.longitude
       },
       zoom: 6,
-      styles: [
-        {
-          "featureType": "all",
-          "elementType": "geometry",
-          "stylers": [
-            {
-              "visibility": "simplified"
-            }
-          ]
-        },
-        {
-          "featureType": "all",
-          "elementType": "labels.icon",
-          "stylers": [
-            {
-              "visibility": "on"
-            }
-          ]
-        },
-        {
-          "featureType": "poi.business",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        },
-        {
-          "featureType": "poi.government",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        },
-        {
-          "featureType": "poi.medical",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        },
-        {
-          "featureType": "poi.park",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        },
-        {
-          "featureType": "poi.place_of_worship",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        },
-        {
-          "featureType": "poi.school",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        },
-        {
-          "featureType": "road",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "simplified"
-            }
-          ]
-        },
-        {
-          "featureType": "transit.station.airport",
-          "elementType": "labels.icon",
-          "stylers": [
-            {
-              "visibility": "on"
-            },
-            {
-              hue: "#ff5252"
-            }
-          ]
-        },
-        {
-          "featureType": "transit.station.bus",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        },
-        {
-          "featureType": "transit.station.rail",
-          "elementType": "all",
-          "stylers": [
-            {
-              "visibility": "off"
-            }
-          ]
-        }
-      ]
+      styles: MapStyles
     });
 
-    this.airports.each(function (airport) {
-      // Create a marker and set its position.
-      airport.marker = new google.maps.Marker({
-        map: me.children.map,
-        position: {
-          lat: airport.get('latitude'),
-          lng: airport.get('longitude')
-        },
-        title: airport.get('name'),
-        icon: window.config.baseUrl + '/images/markers/measle_blue.png'
-      });
-
-      google.maps.event.addListener(airport.marker, 'click', function (event) {
-        me.onAirportClick(event, airport);
-      });
-    });
-
-    if (window.app.trip && window.app.trip.get('destination')) {
-      return this.drawAllPaths(new Airport(window.app.trip.get('destination')));
-    }
-
-  };
-  View.prototype.onAirportClick = function (event, sender) {
-    if (window.app.trip) {
-      this.trigger('airport-click', {
-        event: event,
-        airport: sender
-      });
-
-    }
+    this.children.places = new google.maps.places.PlacesService(this.children.map);
   };
 
-
-  View.prototype.drawAllPaths = function (toAirport) {
+  View.prototype.searchPlaces = function () {
     var me = this;
-    var to = toAirport;
+    if (window.app.trip.get('keywords')) {
+      new B(function (resolve, reject) {
+          me.children.places.textSearch({
+            query: window.app.trip.get('keywords'),
+            bounds: me.children.map.getBounds()
+          }, function (result, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+              return resolve(result);
+            }
+            return reject(status);
+          });
+        })
+        .then(function (result) {
+          me.clearMarkers();
+          me.points.reset(result);
+        });
+    }
+  };
+
+  View.prototype.clearMarkers = function () {
+    this.points.each(function (point) {
+      point.marker && point.marker.setMap(null);
+    });
+  };
+
+  View.prototype.drawMakers = function () {
+    var me = this;
+    me.points.each(function (point) {
+      point.marker = new google.maps.Marker({
+        map: me.children.map,
+        position: point.get('geometry').location,
+        title: point.get('name'),
+        icon: window.config.baseUrl + '/images/markers/dot-9.png'
+      });
+
+      google.maps.event.addListener(point.marker, 'click', function (event) {
+        me.onDestinationClick(event, point);
+      });
+
+      google.maps.event.addListener(point.marker, 'mouseover', function (event) {
+        point.marker.setIcon(window.config.baseUrl + '/images/markers/dot-14.png');
+      });
+
+      google.maps.event.addListener(point.marker, 'mouseout', function (event) {
+        point.marker.setIcon(window.config.baseUrl + '/images/markers/dot-9.png');
+      });
+    });
+
+  }
+
+  View.prototype.onDestinationClick = function (event, sender) {
+    if (window.app.trip) {
+      this.trigger('destination-click', {
+        event: event,
+        destination: {
+          latitude: sender.get('geometry').location.lat(),
+          longitude: sender.get('geometry').location.lng(),
+          id: sender.get('place_id')
+        }
+      });
+    }
+  };
+
+
+  View.prototype.drawAllPaths = function (to) {
+    console.log('draw');
+    var me = this;
     var toCoords = {
       lat: to.get('latitude'),
       lng: to.get('longitude')
@@ -213,10 +141,10 @@ define(function (require) {
 
     this.children.destinationMarker = new google.maps.Marker({
       map: me.children.map,
-      position: toCoords,
-      title: to.get('name')
+      position: toCoords
     });
 
+    me.renderPlaceInfo(to);
 
     if (window.app.participants) {
       window.app.participants.each(function (participant) {
@@ -254,21 +182,71 @@ define(function (require) {
         });
       });
     }
+  };
 
 
+  View.prototype.calculateLowestFares = function (to) {
+    var me = this;
+    var sabre = Sabre.getInstance();
+    // var to = {
+    //   latitude: point.get('geometry').location.lat(),
+    //   longitude: point.get('geometry').location.lng()
+    // };
+    var total = 0;
+    return B.all(window.app.participants.map(function (participant) {
+        var from = participant.get('from') || participant.get('coords');
+        if (from && to) {
+          return B.resolve(sabre.findLowestFare(from, to))
+            .then(function (fare) {
+              total += (fare || {}).price;
+            });
+        }
+      }))
+      .then(function () {
+        return total;
+        // point.marker.setLabel(numeral(total).format('$0,0'));
+      });
+  };
 
-    //return B.resolve(Sabre.getInstance().findLowestFare(itinerary.get('from'), itinerary.get('to')))
-    //  .then(function(fare) {
-    //    var infoWindow = new google.maps.InfoWindow({
-    //      content: INFO_WINDOW({
-    //        attendee: itinerary.toJSON(),
-    //        price: numeral(fare.price).format('$0,0')
-    //      }),
-    //      position: event.latLng,
-    //      map: me.children.map
-    //    });
-    //    infoWindow.open(me.children.map, toAirport);
-    //  });
+  View.prototype.renderPlaceInfo = function (to) {
+    var me = this;
+    return new B(function (resolve, reject) {
+        me.children.places.getDetails({
+          placeId: to.id
+        }, function (result, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            return resolve(result);
+          }
+          return reject(status);
+        });
+      })
+      .then(function (place) {
+        return me.calculateLowestFares({
+          latitude: to.get('latitude'),
+          longitude: to.get('longitude')
+        })
+          .then(function (total) {
+            me.children.infoWindow = new google.maps.InfoWindow({
+              content: INFO_WINDOW({
+                name: place.name,
+                address: place.adr_address || place.formatted_address,
+                photos: _.map(_.first(place.photos, 5), function (photo) {
+                  return photo.getUrl({
+                    maxWidth: 100,
+                    maxHeight: 100
+                  });
+                }),
+                phone: place.formatted_phone_number,
+                url: place.url,
+                rating: place.rating,
+                total: numeral(total).format('$0,0')
+              }),
+              position: place.geometry.location,
+              map: me.children.map
+            });
+            me.children.infoWindow.open(me.children.map, me.children.destinationMarker);
+          });
+      });
   };
 
   View.prototype.clearTrip = function () {
@@ -287,31 +265,23 @@ define(function (require) {
   };
 
   View.prototype.displayTrip = function () {
-    console.log('map::displayTrip()');
     var me = this;
+
     if (window.app.trip.get('destination')) {
-      this.drawAllPaths(new Airport(window.app.trip.get('destination')));
+      this.drawAllPaths(new Backbone.Model(window.app.trip.get('destination')));
     }
 
     window.app.trip.on('destination-changed', function () {
-      me.drawAllPaths(new Airport(window.app.trip.get('destination')));
+      me.drawAllPaths(new Backbone.Model(window.app.trip.get('destination')));
     });
-  };
 
-  //View.prototype.onFlightPathClick = function(event, sender, itinerary) {
-  //  var me = this;
-  //  return B.resolve(Sabre.getInstance().findLowestFare(itinerary.get('from'), itinerary.get('to')))
-  //    .then(function(fare) {
-  //      var infoWindow = new google.maps.InfoWindow({
-  //        content: INFO_WINDOW({
-  //          attendee: itinerary.toJSON(),
-  //          price: numeral(fare.price).format('$0,0')
-  //        }),
-  //        position: event.latLng,
-  //        map: me.children.map
-  //      });
-  //      infoWindow.open(me.children.map, sender);
-  //    });
-  //};
+    window.app.trip.on('keywords-changed', function () {
+      me.searchPlaces();
+    });
+
+    if (window.app.trip.get('keywords')) {
+      me.searchPlaces();
+    }
+  };
   return View;
 });
