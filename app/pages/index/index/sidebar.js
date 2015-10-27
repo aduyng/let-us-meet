@@ -128,8 +128,8 @@ define(function(require) {
   };
 
   Sidebar.prototype.onTripDeleted = function(e) {
-    this.trips.remove(e.trip);
-    this.onBackToTripListClick(e);
+    this.trigger('trip-delete');
+    this.onBackToTripListClick();
   };
 
   Sidebar.prototype.onDetectLocationClick = function(e) {

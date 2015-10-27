@@ -1,5 +1,5 @@
 'use strict';
-define(function(require) {
+define(function (require) {
   var Super = require('views/base'),
     Dialog = require('views/controls/dialog'),
     Trip = require('models/trip'),
@@ -11,33 +11,33 @@ define(function(require) {
 
   var View = Super.extend({});
 
-  View.prototype.initialize = function() {
+  View.prototype.initialize = function () {
     Super.prototype.initialize.apply(this, arguments);
     this.collection = window.app.trips;
     this.boundDraw = this.draw.bind(this);
     this.collection.on('all', this.boundDraw);
   };
 
-  View.prototype.remove = function() {
+  View.prototype.remove = function () {
     this.collection.off('all', this.boundDraw);
     Super.prototype.remove.apply(this, arguments);
   };
 
-  View.prototype.draw = function() {
+  View.prototype.draw = function () {
     this.$el.html(TEMPLATE({
       id: this.getId(),
       trips: this.collection.toJSON()
     }));
   };
 
-  View.prototype.initEvents = function() {
+  View.prototype.initEvents = function () {
     var events = {};
     events['click ' + this.toId('new')] = 'onNewTripClick';
     events['click ' + this.toClass('trip')] = 'onTripClick';
     this.delegateEvents(events);
   };
 
-  View.prototype.onTripClick = function(event) {
+  View.prototype.onTripClick = function (event) {
     var e = $(event.currentTarget);
     var trip = this.collection.get(e.data('id'));
     this.trigger('trip-click', {
@@ -46,7 +46,7 @@ define(function(require) {
     });
   };
 
-  View.prototype.onNewTripClick = function() {
+  View.prototype.onNewTripClick = function () {
     var me = this;
     var user = window.app.user;
     var participants = {};
@@ -59,43 +59,49 @@ define(function(require) {
       id: Trip.getRandomId(),
       userId: user.id,
       name: window.app.translator.get('New Trip'),
-      dateOfTravel: moment().add(4, 'weeks').valueOf(),
+      dateOfArrival: moment().add(4, 'weeks').valueOf(),
       participants: participants
     });
 
-    var view = new TripForm({
-      model: trip
-    });
+    // var view = new TripForm({
+    //   model: trip
+    // });
 
-    var dlg = new Dialog({
-      body: view,
-      buttons: [{
-        id: 'create',
-        label: me.translator.get('Create'),
-        iconClass: 'fa fa-plus-circle',
-        buttonClass: 'btn-success',
-        align: 'left'
-      }, {
-        id: 'cancel',
-        label: me.translator.get('Cancel'),
-        iconClass: 'fa fa-times',
-        buttonClass: 'btn-default',
-        align: 'left',
-        autoClose: true
-      }]
-    });
+    // var dlg = new Dialog({
+    //   body: view,
+    //   buttons: [{
+    //     id: 'create',
+    //     label: me.translator.get('Create'),
+    //     iconClass: 'fa fa-plus-circle',
+    //     buttonClass: 'btn-success',
+    //     align: 'left'
+    //   }, {
+    //     id: 'cancel',
+    //     label: me.translator.get('Cancel'),
+    //     iconClass: 'fa fa-times',
+    //     buttonClass: 'btn-default',
+    //     align: 'left',
+    //     autoClose: true
+    //   }]
+    // });
 
-    dlg.on('create', function() {
-      trip.set(view.toJSON());
-
-      return B.resolve(me.collection.create(trip.toJSON()))
-        .then(function() {
-          dlg.close();
-        })
-        .catch(function() {
-          window.app.layout.toast.error(me.translator.get('Unable to create trip. Please check your input and try again.'));
-        });
+    // dlg.on('create', function() {
+    // trip.set(view.toJSON());
+    me.collection.create({
+      id: Trip.getRandomId(),
+      userId: user.id,
+      name: window.app.translator.get('New Trip'),
+      dateOfArrival: moment().add(4, 'weeks').valueOf(),
+      participants: participants
     });
+    //   return B.resolve(me.collection.create(trip.toJSON()))
+    //     .then(function() {
+    //       dlg.close();
+    //     })
+    //     .catch(function() {
+    //       window.app.layout.toast.error(me.translator.get('Unable to create trip. Please check your input and try again.'));
+    //     });
+    // });
   };
 
   return View;

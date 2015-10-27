@@ -66,6 +66,7 @@ define(function (require) {
     });
     this.children.sidebar.on('relocate', this.onRelocateClick.bind(this));
     this.children.sidebar.on('trip-click', this.onTripClick.bind(this));
+    this.children.sidebar.on('trip-delete', this.onTripDelete.bind(this));
     this.children.sidebar.on('show-trip', this.onShowTrip.bind(this));
     this.children.sidebar.on('show-trip-list', this.onShowTripList.bind(this));
     this.children.sidebar.on('origin-airport-selected', this.onOriginAirportSelected.bind(this));
@@ -88,6 +89,12 @@ define(function (require) {
     this.selectTrip(event.trip.id, window.app.user.id);
   };
 
+  Page.prototype.onTripDelete = function () {
+    window.app.trips.remove(window.app.trips.get(window.app.trip.id));
+    window.app.trip.destroy();
+    this.onShowTripList();
+  };
+
   Page.prototype.selectTrip = function (tripId, userId) {
     var me = this;
     window.app.router.navigate(['index', 'index', 'trip', tripId, 'user', userId || window.app.user.id].join('/'), {
@@ -105,15 +112,16 @@ define(function (require) {
         window.app.trip.on('sync', _.throttle(function () {
           var fromCode = (window.app.trip.destination || {}).id;
           var toCode = (window.app.trip.get('destination') || {}).id;
-
-          if (!fromCode || fromCode !== toCode) {
-            window.app.trip.trigger('destination-changed');
-            window.app.trip.destination = window.app.trip.get('destination');
+          
+          if (toCode) {
+            if (!fromCode || fromCode !== toCode) {
+              window.app.trip.trigger('destination-changed');
+              window.app.trip.destination = window.app.trip.get('destination');
+            }
           }
-
           var fromKeywords = window.app.trip.keywords;
           var toKeywords = window.app.trip.get('keywords');
-          
+
           if (!fromKeywords || fromKeywords !== toKeywords) {
             console.log(fromKeywords, toKeywords);
             window.app.trip.trigger('keywords-changed');
@@ -124,7 +132,7 @@ define(function (require) {
         window.app.participants = window.app.user.getRealtimeParticipants(tripId, userId);
         me.children.sidebar.displayTrip();
         me.children.map.displayTrip();
-      },100);
+      }, 100);
   };
 
   Page.prototype.onShowTrip = function (event) {
