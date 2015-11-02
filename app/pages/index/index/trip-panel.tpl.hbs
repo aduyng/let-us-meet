@@ -21,13 +21,8 @@
         </div>
 
         <div class="form-group required">
-            <label class="control-label" for="{{id}}-keywords">{{translate 'Keywords'}}</label>
-            <div class="input-group">
-                <input type="text" id="{{id}}-keywords" class="form-control {{id}}-field" data-field="keywords" placeholder="{{translate 'Search place by keywords'}}" value="{{trip.keywords}}" />
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-              </span>
-            </div>
+            <label class="control-label" for="{{id}}-keywords">{{translate 'Destination Category'}}</label>
+            <input type="hidden" id="{{id}}-keywords" class="form-control {{id}}-field" data-field="keywords" placeholder="{{translate 'Search place by keywords'}}" value="{{trip.keywords}}" />
         </div>
     </div>
 </div>

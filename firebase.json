@@ -1,0 +1,9 @@
+{
+  "firebase": "let-us-meet",
+  "public": "dist",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}

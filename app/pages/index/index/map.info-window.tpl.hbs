@@ -1,4 +1,5 @@
-<address>
+<div class="info-window">
+    <address>
   <strong>{{name}}</strong><br>
   {{{address}}}<br>
   {{#if phone}}
@@ -8,16 +9,16 @@
   <a href="{{website}}" target="_blank">{{website}}</a>
   {{/if}}
 </address> 
-
 {{#if photos}}
-<div class="galery">
-    {{#each photos}}
-    <img src="{{this}}" width="100" height="100" class="img-thumbnail" /> 
-    {{/each}}
-</div>
-<br />
-{{/if}}
+    <div class="galery">
+        {{#each photos}}
+        <div class="img-thumbnail photo" style="background-image: url({{this}})"></div>
+        {{/each}}
+    </div>
+    <br /> {{/if}}
 
-<div class="well well-sm clearfix">
-    <h4 class="text-success pull-right">{{translate 'Total'}} <strong>{{total}}</strong></h4>
+    <div class="clearfix">
+        <img src="{{baseUrl '/images/sabre.jpg'}}" />
+        <h4 class="text-success pull-right">{{translate 'Total'}} <strong>{{total}}</strong></h4>
+    </div>
 </div>

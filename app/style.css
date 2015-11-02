@@ -176,6 +176,7 @@ input[type=number] ::-webkit-outer-spin-button,input[type=number]::-webkit-inner
 .index-index .main-container{height:100%}
 .index-index .main-container .map{height:100%}
 .index-index .main-container .map .map-canvas{width:100%;height:100%}
+.index-index .main-container .map .map-canvas .info-window .galery .photo{width:100px;height:100px;overflow:hidden;background-size:cover;background-repeat:no-repeat}
 .index-index .main-container .sidebar{position:fixed;height:100%;border-right:1px solid #b6b6b6;padding:5px;width:20%;box-shadow:2px 0 3px 0 rgba(0,0,0,.75);z-index:1;background-color:#303f9f}
 .index-index .main-container .sidebar .wrapper{padding-left:0}
 .index-index .main-container .sidebar .wrapper .top-buttons{margin-bottom:1em}

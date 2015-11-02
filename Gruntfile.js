@@ -5,8 +5,10 @@ var _ = require('lodash');
 var config = require('./app/data/config.json');
 
 module.exports = function (grunt) {
+  var isProductionMode = grunt.option('env') === 'production';
+
   var frontendPath = './dist';
-  
+
   var requireJsOptions = {};
   var concurrentOptions = {
     frontend: {
@@ -23,10 +25,13 @@ module.exports = function (grunt) {
     },
     'frontend': {
       files: [
-        './app/**/*.less'
+        './app/**/*.less',
+        './app/**/*.js',
+        './app/**/*.json',
+        './app/**/*.hbs'
       ],
       tasks: [
-        'less:frontend'
+      'compile'
       ]
     }
   };
@@ -41,6 +46,7 @@ module.exports = function (grunt) {
     generateSourceMaps: false,
     normalizeDirDefines: 'skip',
     paths: {
+      'backbone-core': 'empty:',
       backbone: 'empty:',
       bootstrap: 'empty:',
       text: 'vendors/requirejs-text/text',
@@ -53,8 +59,6 @@ module.exports = function (grunt) {
       i18nprecompile: 'vendors/require-handlebars-plugin/hbs/i18nprecompile',
       json2: 'vendors/require-handlebars-plugin/hbs/json2',
       jquery: 'vendors/jquery/dist/jquery',
-      formValidationCore: 'vendors/formvalidation/js/formValidation',
-      formValidation: 'vendors/formvalidation/js/framework/bootstrap.min',
       toastr: 'empty:',
       moment: 'empty:',
       nprogress: 'empty:',
@@ -66,12 +70,13 @@ module.exports = function (grunt) {
       select2: 'empty:',
       'jqueryui-core': 'empty:',
       jqueryui: 'empty:',
-      datetimepicker: 'empty:',
       numeral: 'empty:',
       ObjectId: 'vendors/ObjectId/ObjectId',
       'btn-wait': 'vendors/btn-wait/btn-wait',
       'google-api': 'empty:',
-      firebase: 'empty:'
+      firebase: 'empty:',
+      facebook: 'empty:',
+      geolocator: 'vendors/geolocator'
     },
     optimizeCss: 'none',
     cssImportIgnore: null,
@@ -103,6 +108,7 @@ module.exports = function (grunt) {
     },
     cjsTranslate: true,
     useSourceUrl: false,
+    generateSourceMaps: !isProductionMode,
     waitSeconds: 30,
     skipSemiColonInsertion: false,
     wrapShim: true
@@ -114,20 +120,20 @@ module.exports = function (grunt) {
       options: _.extend({}, defaultRequireJsModuleOptions, {
         name: moduleName,
         include: [
+          'logger',
+          'ObjectId',
+          'geolocator',
+
           'app',
           'router',
           'views/layout',
-          'views/nav',
           'views/page',
-
-          'logger',
-          'ObjectId',
 
           //pages
           'pages/index/index'
         ],
         exclude: [],
-        out: ['./tmp', moduleName + '.js'].join('/')
+        out: [isProductionMode ? './tmp' : frontendPath, moduleName + '.js'].join('/')
       })
     };
   });
@@ -141,7 +147,8 @@ module.exports = function (grunt) {
       },
       firebase: {
         src: [
-          frontendPath
+          frontendPath,
+          './tmp'
         ]
       }
     },
@@ -154,15 +161,15 @@ module.exports = function (grunt) {
           dest: frontendPath,
           src: [
             'images/icon/*',
-            'images/*'
+            'images/**/*.png',
+            'images/**/*.jpg'
           ]
         }, {
-          expand: true,
-          cwd: './app/vendors/bootstrap-colorpicker/dist/img/bootstrap-colorpicker',
-          dest: frontendPath + '/images/bootstrap-colorpicker',
-          src: [
-            '*.png'
-          ]
+          dest: frontendPath + '/index.html',
+          src: './app/index.html'
+        }, {
+          dest: frontendPath + '/vendors/geocoder.js',
+          src: './app/vendors/geocoder.js'
         }]
       }
     },
@@ -184,8 +191,8 @@ module.exports = function (grunt) {
         },
         files: (function () {
           var files = {};
-          files['app/style.css'] = 'app/style.less';
-          files['app/style.ie.css'] = 'app/style.ie.less';
+          files[frontendPath + '/style.css'] = 'app/style.less';
+          files[frontendPath + '/style.ie.css'] = 'app/style.ie.less';
           return files;
         })()
       }
@@ -193,7 +200,7 @@ module.exports = function (grunt) {
     concurrent: concurrentOptions,
     'http-server': {
       frontend: {
-        root: 'app',
+        root: frontendPath,
         port: process.env.PORT || 11000,
         host: process.env.IP || '0.0.0.0',
         cache: -1,
@@ -268,10 +275,23 @@ module.exports = function (grunt) {
     ]);
   });
 
+  grunt.registerTask('compile', function () {
+    var tasks = [
+      'clean',
+      'requirejs',
+      ];
+    if (isProductionMode) {
+      tasks.push('uglify:frontend');
+    }
+    tasks.push('less:frontend', 'copy:frontend');
+    grunt.task.run(tasks);
+  });
+
   grunt.registerTask('default', function () {
-    grunt.task.run([
-      'less:frontend',
-      'concurrent:frontend'
-    ]);
+    var tasks = ['compile'];
+    if (!isProductionMode) {
+      tasks.push('concurrent:frontend');
+    }
+    grunt.task.run(tasks);
   });
 };

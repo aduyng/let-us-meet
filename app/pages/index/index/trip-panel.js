@@ -4,6 +4,7 @@ define(function (require) {
     Dialog = require('views/controls/dialog'),
     B = require('bluebird'),
     moment = require('moment'),
+    Select2 = require('select2'),
     TEMPLATE = require('hbs!./trip-panel.tpl');
 
   var View = Super.extend({});
@@ -27,12 +28,40 @@ define(function (require) {
       trip: this.model.toJSON(),
       isCreator: this.model.get('userId') === window.app.user.id
     }));
+
+    this.find(this.toId('keywords')).select2({
+      allowClear: false,
+      openOnEnter: false,
+      data: _.map([
+        'airport',
+        'amusement_park',
+        'aquarium',
+        'art_gallery',
+        'bar',
+        'cafe',
+        'campground',
+        'casino',
+        'city_hall',
+        'department_store',
+        'museum',
+        'night_club',
+        'park',
+        'rv_park',
+        'stadium',
+        'university',
+        'zoo'
+      ], function (tag) {
+        return {
+          id: tag,
+          text: tag
+        };
+      })
+    });
   };
 
   View.prototype.initEvents = function () {
     var events = {};
     events['click ' + this.toId('remove')] = 'onRemoveClick';
-    events['click ' + this.toId('edit')] = 'onEditClick';
     events['change ' + this.toClass('field')] = 'onFieldChange';
     this.delegateEvents(events);
   };
@@ -46,8 +75,6 @@ define(function (require) {
       break;
     case 'keywords':
       value = e.val().trim();
-
-      this.searchForPlaces();
       break;
     default:
       value = e.val().trim();
@@ -56,9 +83,6 @@ define(function (require) {
     this.model.set(e.data('field'), value);
   };
 
-  View.prototype.searchForPlaces = function () {
-    google.maps.places
-  };
 
   View.prototype.onRemoveClick = function (event) {
     var me = this;
@@ -101,9 +125,6 @@ define(function (require) {
 
   };
 
-  View.prototype.onEditClick = function (event) {
-
-  };
 
   return View;
 });

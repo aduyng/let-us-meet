@@ -4,7 +4,6 @@ define(function (require) {
     Backbone = require('backbone'),
     FB = require('fb'),
     B = require('bluebird'),
-    geocoder = require('geocoder'),
     Users = require('collections/user'),
     User = require('models/user'),
     INFO_WINDOW = require('hbs!./map.info-window.tpl'),
@@ -22,7 +21,8 @@ define(function (require) {
     Super.prototype.initialize.apply(this, arguments);
     // this.airports = Airports.getInstance();
     this.points = new Backbone.Collection();
-    this.points.on('reset', this.drawMakers.bind(this));
+    this.points.on('add remove reset', this.drawMakers.bind(this));
+
   };
 
   View.prototype.render = function () {
@@ -53,32 +53,48 @@ define(function (require) {
         lat: coords.latitude,
         lng: coords.longitude
       },
-      zoom: 6,
+      zoom: 8,
       styles: MapStyles
     });
+
+    google.maps.event.addListener(this.children.map, 'dragend', this.onMapDragEnd.bind(this));
 
     this.children.places = new google.maps.places.PlacesService(this.children.map);
   };
 
+  View.prototype.onMapDragEnd = function () {
+    this.searchPlaces();
+  };
+
   View.prototype.searchPlaces = function () {
     var me = this;
-    if (window.app.trip.get('keywords')) {
-      new B(function (resolve, reject) {
-          me.children.places.textSearch({
-            query: window.app.trip.get('keywords'),
-            bounds: me.children.map.getBounds()
-          }, function (result, status) {
-            if (status == google.maps.places.PlacesServiceStatus.OK) {
-              return resolve(result);
-            }
-            return reject(status);
-          });
-        })
-        .then(function (result) {
-          me.clearMarkers();
-          me.points.reset(result);
-        });
+    var conditions = {
+      bounds: me.children.map.getBounds()
+    };
+
+    if (window.app.trip && window.app.trip.get('keywords')) {
+      conditions.types = [window.app.trip.get('keywords')];
     }
+    
+    new B(function (resolve, reject) {
+        me.children.places.radarSearch(conditions, function (result, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            return resolve(result);
+          }
+          return reject(status);
+        });
+      })
+      .then(function (result) {
+        if( result ){
+          result = _.map(result, function(record){
+            record.type = conditions.types[0];
+            return record;
+          });
+          me.points.add(result);
+        }
+      })
+      .catch(function(ignore){
+      });
   };
 
   View.prototype.clearMarkers = function () {
@@ -90,24 +106,28 @@ define(function (require) {
   View.prototype.drawMakers = function () {
     var me = this;
     me.points.each(function (point) {
-      point.marker = new google.maps.Marker({
-        map: me.children.map,
-        position: point.get('geometry').location,
-        title: point.get('name'),
-        icon: window.config.baseUrl + '/images/markers/dot-9.png'
-      });
+      if (!point.marker) {
 
-      google.maps.event.addListener(point.marker, 'click', function (event) {
-        me.onDestinationClick(event, point);
-      });
+        point.marker = new google.maps.Marker({
+          map: me.children.map,
+          position: point.get('geometry').location,
+          title: point.get('name'),
+          icon: window.config.baseUrl + '/images/markers/' + point.get('type') + '.png'
+        });
 
-      google.maps.event.addListener(point.marker, 'mouseover', function (event) {
-        point.marker.setIcon(window.config.baseUrl + '/images/markers/dot-14.png');
-      });
+        google.maps.event.addListener(point.marker, 'click', function (event) {
+          me.onDestinationClick(event, point);
+        });
 
-      google.maps.event.addListener(point.marker, 'mouseout', function (event) {
-        point.marker.setIcon(window.config.baseUrl + '/images/markers/dot-9.png');
-      });
+        // google.maps.event.addListener(point.marker, 'mouseover', function (event) {
+        //   point.marker.setIcon(window.config.baseUrl + '/images/markers/dot-14.png');
+        // });
+
+        // google.maps.event.addListener(point.marker, 'mouseout', function (event) {
+        //   point.marker.setIcon(window.config.baseUrl + '/images/markers/dot-9.png');
+        // });
+      }
+
     });
 
   }
@@ -119,7 +139,8 @@ define(function (require) {
         destination: {
           latitude: sender.get('geometry').location.lat(),
           longitude: sender.get('geometry').location.lng(),
-          id: sender.get('place_id')
+          id: sender.get('place_id'),
+          type: sender.get('type')
         }
       });
     }
@@ -141,7 +162,8 @@ define(function (require) {
 
     this.children.destinationMarker = new google.maps.Marker({
       map: me.children.map,
-      position: toCoords
+      position: toCoords,
+      icon: window.config.baseUrl + '/images/markers/' + to.get('type') + '.png'
     });
 
     me.renderPlaceInfo(to);
@@ -204,7 +226,6 @@ define(function (require) {
       }))
       .then(function () {
         return total;
-        // point.marker.setLabel(numeral(total).format('$0,0'));
       });
   };
 
@@ -222,9 +243,9 @@ define(function (require) {
       })
       .then(function (place) {
         return me.calculateLowestFares({
-          latitude: to.get('latitude'),
-          longitude: to.get('longitude')
-        })
+            latitude: to.get('latitude'),
+            longitude: to.get('longitude')
+          })
           .then(function (total) {
             me.children.infoWindow = new google.maps.InfoWindow({
               content: INFO_WINDOW({
@@ -276,10 +297,12 @@ define(function (require) {
     });
 
     window.app.trip.on('keywords-changed', function () {
+      me.clearMarkers();
       me.searchPlaces();
     });
 
     if (window.app.trip.get('keywords')) {
+      me.clearMarkers();
       me.searchPlaces();
     }
   };

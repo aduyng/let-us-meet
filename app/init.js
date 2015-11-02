@@ -1,7 +1,7 @@
 'use strict';
 /*global requirejs*/
 requirejs.config({
-  baseUrl: (typeof window !== 'undefined' && window.config !== undefined && window.config.baseUrl !== undefined) ? (window.config.baseUrl) : './',
+  baseUrl: './',
   locale: 'en-us',
   waitSeconds: 30,
   paths: {
@@ -29,9 +29,8 @@ requirejs.config({
     'btn-wait': 'vendors/btn-wait/btn-wait',
     'google-api': '//apis.google.com/js/api',
     firebase: '//cdn.firebase.com/js/client/2.2.9/firebase',
-    geolocator: 'vendors/geolocator/geolocator',
+    geolocator: 'vendors/geolocator',
     facebook: '//connect.facebook.net/en_US/sdk',
-    geocoder: 'vendors/geocoder/geocoder.min',
     backbone: '//cdn.firebase.com/libs/backbonefire/0.5.1/backbonefire'
   },
   hbs: {
@@ -42,9 +41,6 @@ requirejs.config({
     disableI18n: true
   },
   shim: {
-    geocoder: {
-      exports: 'GeocoderJS'
-    },
     facebook: {
       exports: 'FB'
     },

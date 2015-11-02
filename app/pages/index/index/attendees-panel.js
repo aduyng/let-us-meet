@@ -40,7 +40,7 @@ define(function (require) {
 
     return B.all(me.collection.map(function (participant) {
       var from = participant.get('from') || participant.get('coords');
-      var to = participant.get('to') || me.model.get('destination');
+      var to = me.model.get('destination');
       if (from && to) {
         return B.resolve(sabre.findLowestFare(from, to))
           .then(function (fare) {
@@ -75,7 +75,7 @@ define(function (require) {
   View.prototype.onInviteClick = function (e) {
     FB.ui({
       method: 'send',
-      link: [window.config.backendUrl, 'trip', this.model.id, 'invite'].join('/')
+      link: window.location.href
     });
   };
 

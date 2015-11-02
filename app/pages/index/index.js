@@ -5,7 +5,7 @@ define(function (require) {
     B = require('bluebird'),
     FB = require('fb'),
     Map = require('./index/map'),
-    geocoder = require('geocoder'),
+    geolocator = require('geolocator'),
     _ = require('underscore'),
     User = require('models/realtime/user'),
     Trips = require('collections/trip'),
@@ -209,11 +209,11 @@ define(function (require) {
         if (location) {
           if (!location.coords) {
             return new B(function (resolve) {
-                var geocoder = new GeocoderJS.createGeocoder({
+                var coder = new GeocoderJS.createGeocoder({
                   provider: 'google',
                   useSSL: true
                 });
-                geocoder.geocode(location.formattedAddress, resolve);
+                coder.geocode(location.formattedAddress, resolve);
               })
               .then(function (result) {
                 location.coords = _.pick(result[0] || result, 'latitude', 'longitude');
